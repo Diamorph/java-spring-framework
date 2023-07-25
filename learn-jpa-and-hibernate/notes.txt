@@ -1,0 +1,5 @@
+INSERT INTO COURSE (id, name, author) VALUES (1, 'Learn Java', 'in28minutes');
+
+SELECT * FROM COURSE COURSE ;
+
+DELETE FROM COURSE WHERE ID = 1;

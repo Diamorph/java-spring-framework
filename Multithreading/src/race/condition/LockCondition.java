@@ -1,6 +1,6 @@
 package race.condition;
 
-public class Main {
+public class LockCondition {
 
     public static void main(String[] args) throws InterruptedException {
         InventoryCounter inventoryCounter = new InventoryCounter();
@@ -12,8 +12,6 @@ public class Main {
 
         incrementingThread.join();
         decrementingThread.join();
-
-        System.out.println("We currently have: " + inventoryCounter.getItems() + " items");
     }
 
     public static class DecrementingThread extends Thread {
@@ -61,13 +59,13 @@ public class Main {
 //        }
 
         public void increment() {
-            synchronized (this.lock) {
+            synchronized (lock) {
                 items++;
             }
         }
 
         public void decrement() {
-            synchronized (this.lock) {
+            synchronized (lock) {
                 items--;
             }
         }

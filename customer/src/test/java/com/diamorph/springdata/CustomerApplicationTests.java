@@ -2,12 +2,17 @@ package com.diamorph.springdata;
 
 import com.diamorph.springdata.customer.jpa.CustomerRepository;
 import com.diamorph.springdata.customer.models.Customer;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.test.annotation.Rollback;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class CustomerApplicationTests {
@@ -48,6 +53,51 @@ class CustomerApplicationTests {
 	@Test
 	public void testCount() {
 		System.out.println("Total Records: " + customerRepository.count());
+	}
+
+	@Test
+	public void testFindByEmailAndName() {
+		String searchEmail = "test@gmai.com";
+		String searchName = "Test";
+		List<Customer> customers = customerRepository.findByEmailAndName(searchEmail, searchName);
+		customers.forEach(c -> {
+			System.out.println("Email: " + c.getEmail() + " Name: " + c.getName());
+			assertEquals(searchEmail, c.getEmail());
+			assertEquals(searchName, c.getName());
+		});
+
+	}
+
+	@Test
+	public void testFindEmailLike() {
+		String searchName = "gmail";
+		List<Customer> customers = customerRepository.findByEmailLike("%" + searchName + "%");
+		customers.forEach(c -> {
+			System.out.println(c.getEmail());
+			assertTrue(c.getEmail().contains(searchName));
+		});
+
+	}
+
+	@Test
+	public void testFindByIdIn() {
+		int pageSize = 5;
+		List<Customer> products = customerRepository.findByIdIn(Arrays.asList(1, 2, 3), PageRequest.of(0, pageSize));
+		System.out.println(products);
+		products.forEach(p -> {
+			System.out.println(p.getName());
+		});
+		assertTrue(products.size() <= pageSize);
+	}
+
+	@Test
+	@Transactional
+	@Rollback(false)
+	public void updateCustomerEmail() {
+		String newEmail = "test123@gmail.com";
+		int customerId = 1;
+		customerRepository.updateCustomerEmail(customerId, newEmail);
+		assertEquals(customerRepository.findById(customerId).get().getEmail(), newEmail);
 	}
 
 }

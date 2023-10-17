@@ -2,12 +2,19 @@ package com.diamorph.springjpahibernate;
 
 import com.diamorph.springjpahibernate.product.entities.Product;
 import com.diamorph.springjpahibernate.product.jpa.ProductRepository;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class SpringJpaHibernateApplicationTests {
@@ -50,6 +57,106 @@ class SpringJpaHibernateApplicationTests {
 	@Test
 	public void testCount() {
 		System.out.println("Total Records: " + productRepository.count());
+	}
+
+	@Test
+	public void testFindByName() {
+		List<Product> products = productRepository.findByName("IWatch");
+		products.forEach(p -> assertEquals("IWatch", p.getName()));
+	}
+
+	@Test
+	public void testFindByNameAndDesc() {
+		List<Product> products = productRepository.findByNameAndDesc("IWatch", "new");
+		products.forEach(p -> {
+			assertEquals("IWatch", p.getName());
+			assertEquals("new", p.getDesc());
+		});
+	}
+
+	@Test
+	public void testFindByPriceGreaterThan() {
+		List<Product> products = productRepository.findByPriceGreaterThan(1000d);
+		products.forEach(p -> {
+			System.out.println("Price: " + p.getPrice());
+			assertTrue(1000d < p.getPrice());
+		});
+	}
+
+	@Test
+	public void testFindByDescContains() {
+		String searchString = "From";
+		List<Product> products = productRepository.findByDescContains(searchString);
+		products.forEach(p -> {
+			System.out.println("Desc: " + p.getDesc());
+			assertTrue(p.getDesc().contains(searchString));
+		});
+	}
+
+	@Test
+	public void testFindByPriceBetween() {
+		double price1 = 500d;
+		double price2 = 2500d;
+		List<Product> products = productRepository.findByPriceBetween(price1, price2);
+		products.forEach(p -> {
+			System.out.println("Price: " + p.getPrice());
+			assertTrue(price1 < p.getPrice());
+			assertTrue(price2 > p.getPrice());
+		});
+	}
+
+	@Test
+	public void testFindByDescLike() {
+		String desc = "LG";
+		List<Product> products = productRepository.findByDescLike("%" + desc + "%");
+		products.forEach(p -> {
+			System.out.println("Desc: " + p.getDesc());
+			assertTrue(p.getDesc().contains(desc));
+		});
+	}
+
+	@Test
+	public void testFindByIdIn() {
+		Page<Product> products = productRepository.findByIdIn(Arrays.asList(1, 2, 3, 4, 5), PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "price")));
+		products.forEach(p -> {
+			System.out.println("Name: " + p.getName() + " Price: " + p.getPrice());
+		});
+		assertEquals(5, products.stream().count());
+	}
+
+	@Test
+	public void testFindAllPaging() {
+		Pageable pageable = PageRequest.of(0, 2);
+		Page<Product> results = productRepository.findAll(pageable);
+		results.forEach(r -> System.out.println(r.getName()));
+	}
+
+	@Test
+	public void testFindAllSorting() {
+		List<Product> results = productRepository.findAll(Sort.by(Sort.Direction.DESC, "name", "price"));
+		results.forEach(r -> System.out.println(r.getName()));
+	}
+
+	@Test
+	public void testFindAllSortingMultipleOrders() {
+		List<Product> results = productRepository.findAll(
+				Sort.by(
+						new Sort.Order(Sort.Direction.DESC, "name"),
+						new Sort.Order(Sort.Direction.DESC, "price")
+				)
+		);
+		results.forEach(r -> {
+			System.out.println("Name: " + r.getName() + " Price: " + r.getPrice());
+		});
+	}
+
+	@Test
+	public void testFindAllPagingAndSorting() {
+		PageRequest pageRequest = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "name"));
+		Page<Product> results = productRepository.findAll(pageRequest);
+		results.forEach(r -> {
+			System.out.println("Name: " + r.getName() + " Price: " + r.getPrice());
+		});
 	}
 
 }

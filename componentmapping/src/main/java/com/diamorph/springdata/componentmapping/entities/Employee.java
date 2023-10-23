@@ -1,20 +1,19 @@
-package com.diamorph.springdata.customer.models;
+package com.diamorph.springdata.componentmapping.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
 
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @ToString
 @Entity
-public class Customer {
+@NoArgsConstructor
+@AllArgsConstructor
+public class Employee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String name;
-    private String email;
     @Embedded
     private Address address;
 }

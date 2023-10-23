@@ -1,6 +1,7 @@
 package com.diamorph.springdata;
 
 import com.diamorph.springdata.customer.jpa.CustomerRepository;
+import com.diamorph.springdata.customer.models.Address;
 import com.diamorph.springdata.customer.models.Customer;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
@@ -57,7 +58,7 @@ class CustomerApplicationTests {
 
 	@Test
 	public void testFindByEmailAndName() {
-		String searchEmail = "test@gmai.com";
+		String searchEmail = "test@gmail.com";
 		String searchName = "Test";
 		List<Customer> customers = customerRepository.findByEmailAndName(searchEmail, searchName);
 		customers.forEach(c -> {
@@ -100,4 +101,14 @@ class CustomerApplicationTests {
 		assertEquals(customerRepository.findById(customerId).get().getEmail(), newEmail);
 	}
 
+	@Test
+	public void testAddCustomerWithAddress() {
+		Address address = new Address("25 John St", "New York", "NY", "10038", "USA");
+		Customer customer = new Customer();
+		customer.setName("Vlad");
+		customer.setEmail("test@gmail.com");
+		customer.setAddress(address);
+		Customer savedCustomer = customerRepository.save(customer);
+		System.out.println(savedCustomer);
+	}
 }

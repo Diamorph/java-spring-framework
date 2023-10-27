@@ -2,7 +2,9 @@ package com.diamorph.springjpahibernate;
 
 import com.diamorph.springjpahibernate.product.entities.Product;
 import com.diamorph.springjpahibernate.product.jpa.ProductRepository;
-import org.junit.jupiter.api.Order;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
+import org.hibernate.Session;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,6 +23,9 @@ class SpringJpaHibernateApplicationTests {
 
 	@Autowired
 	ProductRepository productRepository;
+
+	@Autowired
+	EntityManager entityManager;
 
 	@Test
 	void contextLoads() {
@@ -157,6 +162,19 @@ class SpringJpaHibernateApplicationTests {
 		results.forEach(r -> {
 			System.out.println("Name: " + r.getName() + " Price: " + r.getPrice());
 		});
+	}
+
+	@Test
+	@Transactional
+	public void testCaching() {
+		Session session = entityManager.unwrap(Session.class);
+		Product product = productRepository.findById(1).get();
+		System.out.println(product);
+		System.out.println("Second level cache: " + session.getSessionFactory().getCache().contains(Product.class, 1));;
+		Product product1 = productRepository.findById(1).get();
+//		System.out.println(CacheManager.ALL_CACHE_MANAGERS.size());
+		session.evict(product);
+		Product product2 = productRepository.findById(1).get();
 	}
 
 }

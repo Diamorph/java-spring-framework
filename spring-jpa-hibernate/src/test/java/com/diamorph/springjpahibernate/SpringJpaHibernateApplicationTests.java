@@ -177,4 +177,26 @@ class SpringJpaHibernateApplicationTests {
 		Product product2 = productRepository.findById(1).get();
 	}
 
+
+	@Test
+	public void testFindAllProducts() {
+		List<Product> products = productRepository.findAllProducts();
+		products.forEach(System.out::println);
+        assertFalse(products.isEmpty());
+	}
+
+	@Test
+	public void testFindAllProductsByPrice() {
+		List<Product> products = productRepository.findAllProductsByPrice(999);
+		products.forEach(System.out::println);
+		assertFalse(products.isEmpty());
+	}
+
+	@Test
+	public void testFindAllProductsCountByPrice() {
+		int allProductsCountByPrice = productRepository.findAllProductsCountByPrice(999);
+		System.out.println(allProductsCountByPrice);
+		assertTrue(allProductsCountByPrice != 0);
+	}
+
 }
